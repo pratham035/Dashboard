@@ -10,27 +10,42 @@ var mongoose            = require('mongoose');
 var url                 = 'mongodb://localhost/BootCamp';         
 const port              = 3000;
 
+app.set("view engine", "ejs");
 
-mongoose.connect(url, {
-	useNewUrlParser: true,
-  useCreateIndex: true,
-  useUnifiedTopology: true
-}).then(() => {
-	console.log('Connected to DB!');
-}).catch(err => {
-	console.log('ERROR:', err.message);
-});
+app.get("/", function(req,res){
+  res.render("landing");
+})
 
-const PostSchema = new mongoose.Schema({
-  title: String,
-  description: String,
-});
+app.get("/campgrounds", function(req,res){
+  var camp = [
+    {name :"Image1", image :"https://pixabay.com/get/57e8d0424a5bae14f6da8c7dda793f7f1636dfe2564c704c72277bdd954bc55b_340.jpg"},
+    {name :"Image2", image: "https://pixabay.com/get/57e1d14a4e52ae14f6da8c7dda793f7f1636dfe2564c704c72277bdd954bc55b_340.jpg"},
+    {name :"image3", image: "https://pixabay.com/get/57e8d0424a5bae14f6da8c7dda793f7f1636dfe2564c704c72277bdd954bc55b_340.jpg" }
+   ]
+  res.render("campgrounds",{campgrounds:camp});
+})
 
-const Post = mongoose.model("Dashboard", PostSchema);
 
-app.get('/', async (req, res) => {
- let post = await Post.create({title: 'Test', description: 'This is a test for Dashboard'});
- res.send(post);
-});
+// mongoose.connect(url, {
+// 	useNewUrlParser: true,
+//   useCreateIndex: true,
+//   useUnifiedTopology: true
+// }).then(() => {
+// 	console.log('Connected to DB!');
+// }).catch(err => {
+// 	console.log('ERROR:', err.message);
+// });
+
+// const PostSchema = new mongoose.Schema({
+//   title: String,
+//   description: String,
+// });
+
+// const Post = mongoose.model("Dashboard", PostSchema);
+
+// app.get('/', async (req, res) => {
+//  let post = await Post.create({title: 'Test', description: 'This is a test for Dashboard third instance'});
+//  res.send(post);
+// });
 
 app.listen(port, () => console.log(`Express app listening on port ${port}!`));
