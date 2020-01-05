@@ -5,11 +5,19 @@ var cookieParser        = require('cookie-parser');
 var logger              = require('morgan');
 var indexRouter         = require('./routes/index');
 var usersRouter         = require('./routes/users');
+var bodyParser          = require('body-parser');
 var app                 = express();
 var mongoose            = require('mongoose');
 var url                 = 'mongodb://localhost/BootCamp';         
 const port              = 3000;
 
+var camp = [
+  {name :"Image1", image :"https://pixabay.com/get/57e8d0424a5bae14f6da8c7dda793f7f1636dfe2564c704c72277bdd954bc55b_340.jpg"},
+  {name :"Image2", image: "https://pixabay.com/get/57e1d14a4e52ae14f6da8c7dda793f7f1636dfe2564c704c72277bdd954bc55b_340.jpg"},
+  {name :"image3", image: "https://pixabay.com/get/57e8d0424a5bae14f6da8c7dda793f7f1636dfe2564c704c72277bdd954bc55b_340.jpg" }
+ ]
+
+app.use(bodyParser.urlencoded({extended:  true}));
 app.set("view engine", "ejs");
 
 app.get("/", function(req,res){
@@ -17,14 +25,21 @@ app.get("/", function(req,res){
 })
 
 app.get("/campgrounds", function(req,res){
-  var camp = [
-    {name :"Image1", image :"https://pixabay.com/get/57e8d0424a5bae14f6da8c7dda793f7f1636dfe2564c704c72277bdd954bc55b_340.jpg"},
-    {name :"Image2", image: "https://pixabay.com/get/57e1d14a4e52ae14f6da8c7dda793f7f1636dfe2564c704c72277bdd954bc55b_340.jpg"},
-    {name :"image3", image: "https://pixabay.com/get/57e8d0424a5bae14f6da8c7dda793f7f1636dfe2564c704c72277bdd954bc55b_340.jpg" }
-   ]
-  res.render("campgrounds",{campgrounds:camp});
+    res.render("campgrounds",{campgrounds:camp});
 })
 
+app.post("/campgrounds",function(req, res){
+  var name = req.body.name;
+  var image = req.body.image;
+  var newCamp = {name: name, image: image}
+  camp.push(newCamp);
+  res.redirect("/campgrounds");
+})
+
+app.get("/campgounds/new", function(req,res){
+  res.render("new.ejs");
+  
+})
 
 // mongoose.connect(url, {
 // 	useNewUrlParser: true,
