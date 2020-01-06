@@ -11,35 +11,53 @@ var mongoose            = require('mongoose');
 var url                 = 'mongodb://localhost/BootCamp';         
 const port              = 3000;
 
-var camp = [
-  {name :"Image1", image :"https://cdn.pixabay.com/photo/2019/12/23/19/56/scotland-4715309__340.jpg"},
-  {name :"Image2", image: "https://cdn.pixabay.com/photo/2019/12/06/14/01/sea-4677421__340.jpg"},
-  {name :"image3", image: "https://cdn.pixabay.com/photo/2019/12/13/18/06/deer-4693574__340.jpg"}]
-
 app.use(bodyParser.urlencoded({extended:  true}));
 app.set("view engine", "ejs");
 
+//SCHEMA SETUP and MODEL(By Using Mongoose)
+const campgroundSchema = new mongoose.Schema({
+  name: String,
+  image: String
+});
+const Campground = mongoose.model("Campground",campgroundSchema);
+
+//Root Node(Base URL)
 app.get("/", function(req,res){
   res.render("landing");
-})
+});
 
+//Get all Campgrounds listed in Database
 app.get("/campgrounds", function(req,res){
-    res.render("campgrounds",{campgrounds:camp});
-})
+  Campground.find({}, function(err,allCampgrounds){
+    if(err){
+      console.log(err)
+    }else{
+      res.render("campgrounds",{campgrounds:allCampgrounds});
+    }
+  })    
+});
 
+//Post the Campground name and Image to collection Campgrounds
 app.post("/campgrounds",function(req, res){
   var name = req.body.name;
   var image = req.body.image;
   var newCamp = {name: name, image: image}
-  camp.push(newCamp);
-  res.redirect("/campgrounds");
-})
+  Campground.create(newCamp,function(err,newlyCreated){
+    if(err){
+      console.log(err);
+    }else{
+      res.redirect("/campgrounds");
+    }
+  })
+});
 
+//Redirects the app to upload new image 
 app.get("/campgounds/new", function(req,res){
   res.render("new.ejs");
   
-})
+});
 
+//Connects to DB by using mongoose
 mongoose.connect(url, {
 	useNewUrlParser: true,
   useCreateIndex: true,
@@ -50,36 +68,11 @@ mongoose.connect(url, {
 	console.log('ERROR:', err.message);
 });
 
-const campgroundSchema = new mongoose.Schema({
-  name: String,
-  image: String
-})
+// const Post = mongoose.model("Campground", campgroundSchema);
 
-const Campground = mongoose.model("Campground",campgroundSchema);
-
-Campground.create(
-  {
-    name: "Image1",
-    image: "https://cdn.pixabay.com/photo/2019/12/13/18/06/deer-4693574__340.jpg"
-  }, function(err,campground){
-    if(err){
-      console.log(err);
-    }else{
-      console.log("Newly created camp");
-      console.log(campground)
-      }
-    });
-
-// const PostSchema = new mongoose.Schema({
-//   title: String,
-//   description: String,
+// app.get('/', async (req, res) => {
+//  let post = await Post.create({title: 'Test', description: 'This is a test for Dashboard third instance'});
+//  res.send(post);
 // });
-
-// const Post = mongoose.model("Dashboard", PostSchema);
-
-app.get('/', async (req, res) => {
- let post = await Post.create({title: 'Test', description: 'This is a test for Dashboard third instance'});
- res.send(post);
-});
-
+//Listens to port 3000 and keeps server running
 app.listen(port, () => console.log(`Express app listening on port ${port}!`));
