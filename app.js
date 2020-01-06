@@ -12,10 +12,9 @@ var url                 = 'mongodb://localhost/BootCamp';
 const port              = 3000;
 
 var camp = [
-  {name :"Image1", image :"https://pixabay.com/get/57e8d0424a5bae14f6da8c7dda793f7f1636dfe2564c704c72277bdd954bc55b_340.jpg"},
-  {name :"Image2", image: "https://pixabay.com/get/57e1d14a4e52ae14f6da8c7dda793f7f1636dfe2564c704c72277bdd954bc55b_340.jpg"},
-  {name :"image3", image: "https://pixabay.com/get/57e8d0424a5bae14f6da8c7dda793f7f1636dfe2564c704c72277bdd954bc55b_340.jpg" }
- ]
+  {name :"Image1", image :"https://cdn.pixabay.com/photo/2019/12/23/19/56/scotland-4715309__340.jpg"},
+  {name :"Image2", image: "https://cdn.pixabay.com/photo/2019/12/06/14/01/sea-4677421__340.jpg"},
+  {name :"image3", image: "https://cdn.pixabay.com/photo/2019/12/13/18/06/deer-4693574__340.jpg"}]
 
 app.use(bodyParser.urlencoded({extended:  true}));
 app.set("view engine", "ejs");
@@ -41,15 +40,35 @@ app.get("/campgounds/new", function(req,res){
   
 })
 
-// mongoose.connect(url, {
-// 	useNewUrlParser: true,
-//   useCreateIndex: true,
-//   useUnifiedTopology: true
-// }).then(() => {
-// 	console.log('Connected to DB!');
-// }).catch(err => {
-// 	console.log('ERROR:', err.message);
-// });
+mongoose.connect(url, {
+	useNewUrlParser: true,
+  useCreateIndex: true,
+  useUnifiedTopology: true
+}).then(() => {
+	console.log('Connected to DB!');
+}).catch(err => {
+	console.log('ERROR:', err.message);
+});
+
+const campgroundSchema = new mongoose.Schema({
+  name: String,
+  image: String
+})
+
+const Campground = mongoose.model("Campground",campgroundSchema);
+
+Campground.create(
+  {
+    name: "Image1",
+    image: "https://cdn.pixabay.com/photo/2019/12/13/18/06/deer-4693574__340.jpg"
+  }, function(err,campground){
+    if(err){
+      console.log(err);
+    }else{
+      console.log("Newly created camp");
+      console.log(campground)
+      }
+    });
 
 // const PostSchema = new mongoose.Schema({
 //   title: String,
@@ -58,9 +77,9 @@ app.get("/campgounds/new", function(req,res){
 
 // const Post = mongoose.model("Dashboard", PostSchema);
 
-// app.get('/', async (req, res) => {
-//  let post = await Post.create({title: 'Test', description: 'This is a test for Dashboard third instance'});
-//  res.send(post);
-// });
+app.get('/', async (req, res) => {
+ let post = await Post.create({title: 'Test', description: 'This is a test for Dashboard third instance'});
+ res.send(post);
+});
 
 app.listen(port, () => console.log(`Express app listening on port ${port}!`));
