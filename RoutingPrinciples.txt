@@ -1,0 +1,5 @@
+Name:
+INDEX : /dogs : GET
+NEW:    /dogs/new :GET
+CREATE: /dogs :POST
+SHOW:/dogs/:id
