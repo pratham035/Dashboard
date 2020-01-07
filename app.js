@@ -8,11 +8,13 @@ var usersRouter         = require('./routes/users');
 var bodyParser          = require('body-parser');
 var app                 = express();
 var mongoose            = require('mongoose');
+var methodOverride      = require("method-override");
 var url                 = 'mongodb://localhost/BootCamp';         
 const port              = 3000;
 
 app.use(bodyParser.urlencoded({extended:  true}));
 app.set("view engine", "ejs");
+app.use(methodOverride("_method"));
 
 //SCHEMA SETUP and MODEL(By Using Mongoose)
 const campgroundSchema = new mongoose.Schema({
@@ -81,5 +83,38 @@ app.get("/campgrounds/:id", function(req,res){
   })
   
 })
+
+//edit the campground(Edit Route)
+app.get("/campgrounds/:id/edit", function(req, res){
+  Campground.findById(req.params.id, function(err, foundCamp){
+    if(err){
+      res.redirect("/campgrounds")
+    }else{
+      res.render("edit",{campground : foundCamp});
+    }
+  })
+})
+
+// //put request(Put Route)
+app.put("/campgrounds/:id/", function(req, res){
+  Campground.findByIdAndUpdate(req.params.id,req.body.campground,function(err, updatedCamp){
+    if(err){
+            res.redirect("/campgrounds");
+          }else{
+            res.redirect("/campgrounds/" +req.params.id);
+          }
+  })
+})
+
+app.delete("/campgrounds/:id/", function(req,res){
+  Campground.findByIdAndRemove(req.params.id,function(err){
+    if(err){
+            res.redirect("/campgrounds");
+          }else{
+            res.redirect("/campgrounds");
+          }
+  })
+})
+
 //Listens to port 3000 and keeps server running
 app.listen(port, () => console.log(`Express app listening on port ${port}!`));
