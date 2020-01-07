@@ -17,7 +17,8 @@ app.set("view engine", "ejs");
 //SCHEMA SETUP and MODEL(By Using Mongoose)
 const campgroundSchema = new mongoose.Schema({
   name: String,
-  image: String
+  image: String,
+  description: String
 });
 const Campground = mongoose.model("Campground",campgroundSchema);
 
@@ -26,22 +27,23 @@ app.get("/", function(req,res){
   res.render("landing");
 });
 
-//Get all Campgrounds listed in Database
+//Get all Campgrounds listed in Database(Index Route)
 app.get("/campgrounds", function(req,res){
   Campground.find({}, function(err,allCampgrounds){
     if(err){
       console.log(err)
     }else{
-      res.render("campgrounds",{campgrounds:allCampgrounds});
+      res.render("index",{campgrounds:allCampgrounds});
     }
   })    
 });
 
-//Post the Campground name and Image to collection Campgrounds
+//Post the Campground name and Image to collection Campgrounds(Create Route)
 app.post("/campgrounds",function(req, res){
   var name = req.body.name;
   var image = req.body.image;
-  var newCamp = {name: name, image: image}
+  var desc = req.body.description;
+  var newCamp = {name: name, image: image,description:desc}
   Campground.create(newCamp,function(err,newlyCreated){
     if(err){
       console.log(err);
@@ -51,7 +53,7 @@ app.post("/campgrounds",function(req, res){
   })
 });
 
-//Redirects the app to upload new image 
+//Redirects the app to upload new image (new ROute)
 app.get("/campgounds/new", function(req,res){
   res.render("new.ejs");
   
@@ -68,11 +70,16 @@ mongoose.connect(url, {
 	console.log('ERROR:', err.message);
 });
 
-// const Post = mongoose.model("Campground", campgroundSchema);
-
-// app.get('/', async (req, res) => {
-//  let post = await Post.create({title: 'Test', description: 'This is a test for Dashboard third instance'});
-//  res.send(post);
-// });
+//Show Route(to show more details)
+app.get("/campgrounds/:id", function(req,res){
+  Campground.findById(req.params.id, function(err, foundCamp){
+    if(err){
+      console.log(err);
+    }else{
+      res.render("show",{campground : foundCamp});
+    }
+  })
+  
+})
 //Listens to port 3000 and keeps server running
 app.listen(port, () => console.log(`Express app listening on port ${port}!`));
