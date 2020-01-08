@@ -8,6 +8,8 @@ var usersRouter         = require('./routes/users');
 var bodyParser          = require('body-parser');
 var app                 = express();
 var mongoose            = require('mongoose');
+var Campground          = require("./models/campgrounds")
+
 var methodOverride      = require("method-override");
 var url                 = 'mongodb://localhost/BootCamp';         
 const port              = 3000;
@@ -16,13 +18,6 @@ app.use(bodyParser.urlencoded({extended:  true}));
 app.set("view engine", "ejs");
 app.use(methodOverride("_method"));
 
-//SCHEMA SETUP and MODEL(By Using Mongoose)
-const campgroundSchema = new mongoose.Schema({
-  name: String,
-  image: String,
-  description: String
-});
-const Campground = mongoose.model("Campground",campgroundSchema);
 
 //Root Node(Base URL)
 app.get("/", function(req,res){
@@ -35,7 +30,7 @@ app.get("/campgrounds", function(req,res){
     if(err){
       console.log(err)
     }else{
-      res.render("index",{campgrounds:allCampgrounds});
+      res.render("campgrounds/index",{campgrounds:allCampgrounds});
     }
   })    
 });
@@ -57,7 +52,7 @@ app.post("/campgrounds",function(req, res){
 
 //Redirects the app to upload new image (new ROute)
 app.get("/campgounds/new", function(req,res){
-  res.render("new.ejs");
+  res.render("campgrounds/new");
   
 });
 
@@ -78,11 +73,10 @@ app.get("/campgrounds/:id", function(req,res){
     if(err){
       console.log(err);
     }else{
-      res.render("show",{campground : foundCamp});
+      res.render("campgrounds/show",{campground : foundCamp});
     }
-  })
-  
-})
+  })  
+});
 
 //edit the campground(Edit Route)
 app.get("/campgrounds/:id/edit", function(req, res){
@@ -93,7 +87,7 @@ app.get("/campgrounds/:id/edit", function(req, res){
       res.render("edit",{campground : foundCamp});
     }
   })
-})
+});
 
 // //put request(Put Route)
 app.put("/campgrounds/:id/", function(req, res){
@@ -104,7 +98,7 @@ app.put("/campgrounds/:id/", function(req, res){
             res.redirect("/campgrounds/" +req.params.id);
           }
   })
-})
+});
 
 app.delete("/campgrounds/:id/", function(req,res){
   Campground.findByIdAndRemove(req.params.id,function(err){
@@ -114,7 +108,50 @@ app.delete("/campgrounds/:id/", function(req,res){
             res.redirect("/campgrounds");
           }
   })
-})
+});
+//++++++++++++++++++++++++++++++++++++++++++++++++++++Comments
+//Get the New Comment Form
+app.get("/campgrounds/:id/comments/new", function(req,res){
+  Campground.findById(req.params.id, function(err, campground){
+    if(err){
+      console.log(err);
+    }else{
+      res.render("comments/new",{campground : campground});
+    }
+  })
+});
+
+app.post("/campgrounds/:id/comments",function(req, res){
+  Campground.findById(req.params.id, function(err, campground){
+    if(err){
+      console.log(err);
+      res.redirect("/campgrounds");
+    }else{
+      Campground.create(req.body.comment, function(err,comment){
+        if(err){
+          console.log(err);
+        }else{
+          campground.comments.push(comments);
+          campground.save();
+          res.redirect('/campgrounds/' + campground._id);
+        }
+      })
+    }
+  })
+});
+
+  // 
+  // Campground.create(newComments,function(err,newlyCreated){
+  //   if(err){
+  //     console.log(err);
+  //   }else{
+  //     res.redirect("/campgrounds");
+  //   }
+//   })
+// });
+
+
+//post the new comment
 
 //Listens to port 3000 and keeps server running
 app.listen(port, () => console.log(`Express app listening on port ${port}!`));
