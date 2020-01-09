@@ -1,11 +1,20 @@
-/* body {
-  padding: 50px;
-  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
-}
+body {
+  background: rgba(0, 183, 255, 0.37);
+ }
 
-a {
-  color: #00B7FF;
-} */
-#delete {
-  display: grid;
-}
+ #delete{
+   display : inline;
+ }
+
+ .thumbnail img{
+  width: 100%;
+ }
+
+ .thumbnail{
+  padding: 0;
+ }
+
+ .thumbnail .caption-full{
+   padding: 9px;
+ }
+

@@ -9,15 +9,14 @@ var bodyParser          = require('body-parser');
 var app                 = express();
 var mongoose            = require('mongoose');
 var Campground          = require("./models/campgrounds")
-
 var methodOverride      = require("method-override");
 var url                 = 'mongodb://localhost/BootCamp';         
 const port              = 3000;
 
 app.use(bodyParser.urlencoded({extended:  true}));
 app.set("view engine", "ejs");
+app.use(express.static("./public"));
 app.use(methodOverride("_method"));
-
 
 //Root Node(Base URL)
 app.get("/", function(req,res){
@@ -100,19 +99,20 @@ app.put("/campgrounds/:id/", function(req, res){
   })
 });
 
-app.delete("/campgrounds/:id/", function(req,res){
-  Campground.findByIdAndRemove(req.params.id,function(err){
-    if(err){
-            res.redirect("/campgrounds");
-          }else{
-            res.redirect("/campgrounds");
-          }
+//Delete Route(Delete Campground)
+app.delete("/campgrounds/:id", function (req, res) {
+  Campground.findByIdAndRemove(req.params.id, function (err) {
+    if (err) {
+      res.redirect("/campgrounds");
+    } else {
+      res.redirect("/campgrounds");
+    }
   })
-});
+})
 //++++++++++++++++++++++++++++++++++++++++++++++++++++Comments
 //Get the New Comment Form
 app.get("/campgrounds/:id/comments/new", function(req,res){
-  Campground.findById(req.params.id, function(err, campground){
+ Campground.findById(req.params.id, function(err, campground){
     if(err){
       console.log(err);
     }else{
@@ -121,8 +121,10 @@ app.get("/campgrounds/:id/comments/new", function(req,res){
   })
 });
 
+//post the new comments
 app.post("/campgrounds/:id/comments",function(req, res){
   Campground.findById(req.params.id, function(err, campground){
+    console.log("ID "+req.params.id);
     if(err){
       console.log(err);
       res.redirect("/campgrounds");
@@ -131,27 +133,14 @@ app.post("/campgrounds/:id/comments",function(req, res){
         if(err){
           console.log(err);
         }else{
-          campground.comments.push(comments);
-          campground.save();
-          res.redirect('/campgrounds/' + campground._id);
+          console.log("Comments Added");
+          // campground.comments.push(comments);
+          // campground.save();
+          // res.redirect('/campgrounds/' + campground._id);
         }
       })
     }
   })
 });
-
-  // 
-  // Campground.create(newComments,function(err,newlyCreated){
-  //   if(err){
-  //     console.log(err);
-  //   }else{
-  //     res.redirect("/campgrounds");
-  //   }
-//   })
-// });
-
-
-//post the new comment
-
 //Listens to port 3000 and keeps server running
 app.listen(port, () => console.log(`Express app listening on port ${port}!`));
