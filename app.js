@@ -8,15 +8,21 @@ var usersRouter         = require('./routes/users');
 var bodyParser          = require('body-parser');
 var app                 = express();
 var mongoose            = require('mongoose');
-var Campground          = require("./models/campgrounds")
+var Campground          = require("./models/campground");
+var Comment             = require("./models/comment");
+var seedDB              = require("./views/seeds");
 var methodOverride      = require("method-override");
 var url                 = 'mongodb://localhost/BootCamp';         
 const port              = 3000;
+
+
 
 app.use(bodyParser.urlencoded({extended:  true}));
 app.set("view engine", "ejs");
 app.use(express.static("./public"));
 app.use(methodOverride("_method"));
+
+seedDB();
 
 //Root Node(Base URL)
 app.get("/", function(req,res){
@@ -68,7 +74,7 @@ mongoose.connect(url, {
 
 //Show Route(to show more details)
 app.get("/campgrounds/:id", function(req,res){
-  Campground.findById(req.params.id, function(err, foundCamp){
+  Campground.findById(req.params.id).populate("comments").exec(function(err, foundCamp){
     if(err){
       console.log(err);
     }else{
@@ -90,7 +96,7 @@ app.get("/campgrounds/:id/edit", function(req, res){
 
 // //put request(Put Route)
 app.put("/campgrounds/:id/", function(req, res){
-  Campground.findByIdAndUpdate(req.params.id,req.body.campground,function(err, updatedCamp){
+   Campground.findByIdAndUpdate(req.params.id,req.body.campground,function(err, updatedCamp){
     if(err){
             res.redirect("/campgrounds");
           }else{
@@ -112,14 +118,14 @@ app.delete("/campgrounds/:id", function (req, res) {
 //++++++++++++++++++++++++++++++++++++++++++++++++++++Comments
 //Get the New Comment Form
 app.get("/campgrounds/:id/comments/new", function(req,res){
- Campground.findById(req.params.id, function(err, campground){
-    if(err){
-      console.log(err);
-    }else{
-      res.render("comments/new",{campground : campground});
-    }
-  })
-});
+  Campground.findById(req.params.id, function(err, campground){
+     if(err){
+       console.log(err);
+     }else{
+       res.render("comments/new",{campground : campground});
+     }
+   })
+ });
 
 //post the new comments
 app.post("/campgrounds/:id/comments",function(req, res){
@@ -129,14 +135,15 @@ app.post("/campgrounds/:id/comments",function(req, res){
       console.log(err);
       res.redirect("/campgrounds");
     }else{
-      Campground.create(req.body.comment, function(err,comment){
+      Comment.create(req.body.comment, function(err,comment){
         if(err){
           console.log(err);
         }else{
           console.log("Comments Added");
-          // campground.comments.push(comments);
-          // campground.save();
-          // res.redirect('/campgrounds/' + campground._id);
+          campground.comments.push(comment);
+          campground.save();
+          res.redirect('/campgrounds/' + campground._id);
+          console.log("Created new comment");
         }
       })
     }
