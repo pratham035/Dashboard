@@ -212,7 +212,7 @@ app.post("/login", passport.authenticate("local",
   });
 
   function isLoggedIn(req, res, next){
-    if(req.isAutheticated()){
+    if(req.isAuthenticated()){
         return next();
     }
     res.redirect("/login");
