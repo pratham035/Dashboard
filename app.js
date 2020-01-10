@@ -12,6 +12,9 @@ var Campground          = require("./models/campground");
 var Comment             = require("./models/comment");
 var seedDB              = require("./views/seeds");
 var methodOverride      = require("method-override");
+var passport            = require("passport");
+var LocalStrategy       = require("passport-local");
+var User                = require("./models/user");
 var url                 = 'mongodb://localhost/BootCamp';         
 const port              = 3000;
 
@@ -23,6 +26,25 @@ app.use(express.static("./public"));
 app.use(methodOverride("_method"));
 
 seedDB();
+
+//passport
+app.use(require("express-session")({
+  secret    : "Prashanth",
+  resave    : false,
+  saveUninitialized: false
+}));
+app.use(passport.initialize());
+app.use(passport.session());
+passport.use(new LocalStrategy(User.authenticate()));
+passport.serializeUser(User.serializeUser());
+passport.deserializeUser(User.deserializeUser());
+
+
+// send logged in user details to every routes:
+app.use(function(req, res, next){
+  res.locals.currentUser = req.user;
+  next();
+});
 
 //Root Node(Base URL)
 app.get("/", function(req,res){
@@ -117,7 +139,7 @@ app.delete("/campgrounds/:id", function (req, res) {
 })
 //++++++++++++++++++++++++++++++++++++++++++++++++++++Comments
 //Get the New Comment Form
-app.get("/campgrounds/:id/comments/new", function(req,res){
+app.get("/campgrounds/:id/comments/new", isLoggedIn, function(req,res){
   Campground.findById(req.params.id, function(err, campground){
      if(err){
        console.log(err);
@@ -128,7 +150,7 @@ app.get("/campgrounds/:id/comments/new", function(req,res){
  });
 
 //post the new comments
-app.post("/campgrounds/:id/comments",function(req, res){
+app.post("/campgrounds/:id/comments",isLoggedIn, function(req, res){
   Campground.findById(req.params.id, function(err, campground){
     console.log("ID "+req.params.id);
     if(err){
@@ -149,5 +171,52 @@ app.post("/campgrounds/:id/comments",function(req, res){
     }
   })
 });
-//Listens to port 3000 and keeps server running
+
+
+///Auth Routes
+app.get("/register", function(req,res){
+  res.render("register");
+});
+
+app.post("/register", function(req,res){
+  var newUser = new User({username: req.body.username});
+  User.register(newUser, req.body.password, function(err, user){
+    if(err){
+      console.log(err);
+      return res.render("register")
+    }
+    passport.authenticate("local")(req, res, function(){
+      res.redirect("/campgrounds");
+    })
+  })
+});
+
+//show login form
+app.get("/login", function(req, res){
+  res.render("login");
+});
+
+//handling login logic
+app.post("/login", passport.authenticate("local",
+  {
+    successRedirect: "/campgrounds",
+    failureRedirect: "/login"  
+  }), function(req, res){
+
+  });
+
+  //logout 
+  app.get("/logout", function(req, res){
+    req.logOut();
+    res.redirect("/campgrounds");
+  });
+
+  function isLoggedIn(req, res, next){
+    if(req.isAutheticated()){
+        return next();
+    }
+    res.redirect("/login");
+  };
+
+  //Listens to port 3000 and keeps server running
 app.listen(port, () => console.log(`Express app listening on port ${port}!`));

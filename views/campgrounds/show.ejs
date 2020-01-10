@@ -9,18 +9,20 @@
                     <p><%=campground.description%></p>                    
                 </div>
             </div>
-            <% campground.comments.forEach(function(comment){ %>
-                <p>
-                    <strong><%= comment.author%></strong> - <%= comment.text %>
-                </p>         
-           <% }) %>
+            <div class="well"> 
+                <% campground.comments.forEach(function(comment){ %>
+                    <p>
+                        <strong><%= comment.author%></strong> - <%= comment.text %>
+                    </p>         
+               <% }) %>
+            </div>
             <div class="well">               
                 <div class="text-right">
-                    <a href="/campgrounds/<%= campground._id %>/comments/new" class="btn btn-success">Add New
+                    <a href="/campgrounds/<%= campground._id %>/comments/new" class="btn btn-success line">Add New
                         Comment</a>
-                    <a href="/campgrounds/<%= campground._id %>/edit" class="btn btn-primary">Edit</a>
+                    <a href="/campgrounds/<%= campground._id %>/edit" class="btn btn-primary line">Edit</a>
                     <a class="btn btn-info" href="/campgrounds" role="button">Back</a>
-                    <form action="/campgrounds/<%= campground._id %>?_method=DELETE" id="delete" method="POST">
+                    <form action="/campgrounds/<%= campground._id %>?_method=DELETE" class="line" method="POST">
                         <button class="btn btn-danger">Delete</button>  
                     </form>
                 </div>

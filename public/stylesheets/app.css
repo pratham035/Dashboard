@@ -6,6 +6,9 @@ body {
    display : inline;
  }
 
+ .line{
+  display : inline;
+}
  .thumbnail img{
   width: 100%;
  }
