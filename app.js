@@ -20,7 +20,7 @@ app.set("view engine", "ejs");
 app.use(express.static("./public"));
 app.use(methodOverride("_method"));
 
-seedDB();
+// seedDB();
 
 //passport
 app.use(require("express-session")({
