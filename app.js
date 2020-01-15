@@ -38,6 +38,9 @@ passport.deserializeUser(User.deserializeUser());
 // send logged in user details to every routes:
 app.use(function(req, res, next){
   res.locals.currentUser = req.user;
+  console.log("CUrrent User :"+res.locals.currentUser);
+  console.log("request :"+req);
+  console.log("response :"+res);
   next();
 });
 
